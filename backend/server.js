@@ -29,8 +29,8 @@ mysqlPool
 
   // Start the server
 const port = process.env.PORT || 4000;
-const server = app.listen(process.env.PORT, () => {
-  console.log("server is working on port " + process.env.PORT);
+const server = app.listen(port, () => {
+  console.log(`Server is working on port ${port}`);
 });
 
 // unhandled promise rejection
