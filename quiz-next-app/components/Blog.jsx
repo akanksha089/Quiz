@@ -5,7 +5,7 @@ function Blog({ apiBlogs, apiBlocks }) {
     const blogs = apiBlocks && apiBlocks.blogs;
     const ourBlog = blogs && blogs.find(blog => blog.uniuqe_id === "our-blog");
     return (
-        <div>{/* Blog Section Start */}
+        <div>
             <div className="container-fluid blog py-5">
                 <div className="container py-5">
                     <div className="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style={{ maxWidth: '900px' }}>
@@ -18,7 +18,8 @@ function Blog({ apiBlogs, apiBlocks }) {
                     <div className="row g-4 justify-content-center">
                         {
                             apiBlogs && apiBlogs.blogs && apiBlogs.blogs.length > 0 ? (
-                                apiBlogs.blogs.map((item, index) => <div key={index} className="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                                apiBlogs.blogs.map((item, index) => 
+                                <div key={index} className="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
                                     <div  className="blog-item">
                                         <div className="blog-img">
                                             <img src={item && item.image} className="img-fluid blogs-img " alt="" />
