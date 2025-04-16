@@ -27,10 +27,9 @@ mysqlPool
     console.error("Error establishing MySQL connection:", err);
   });
 
-  // Start the server
-const port = process.env.PORT || 4000;
-const server = app.listen(port, () => {
-  console.log(`Server is working on port ${port}`);
+  
+const server = app.listen(process.env.PORT, () => {
+  console.log("server is working on port " + process.env.PORT);
 });
 
 // unhandled promise rejection
