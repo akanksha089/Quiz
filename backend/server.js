@@ -14,9 +14,9 @@ process.on("uncaughtException", (err) => {
 //console.log(testing);
 
 connectDatabase();
-mysqlPool.query('select 1').then((error)=>{
-    console.log('mysql connection established');
-})
+// mysqlPool.query('select 1').then((error)=>{
+//     console.log('mysql connection established');
+// })
 
 mysqlPool
   .query("SELECT 1")
@@ -27,6 +27,8 @@ mysqlPool
     console.error("Error establishing MySQL connection:", err);
   });
 
+  // Start the server
+const port = process.env.PORT || 4000;
 const server = app.listen(process.env.PORT, () => {
   console.log("server is working on port " + process.env.PORT);
 });
