@@ -13,10 +13,10 @@ process.on("uncaughtException", (err) => {
 
 //console.log(testing);
 
-//connectDatabase();
-/*mysqlPool.query('select 1').then((error)=>{
+connectDatabase();
+mysqlPool.query('select 1').then((error)=>{
     console.log('mysql connection established');
-})*/
+})
 
 mysqlPool
   .query("SELECT 1")
