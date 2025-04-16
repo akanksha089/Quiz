@@ -18,8 +18,8 @@ function Blog({ apiBlogs, apiBlocks }) {
                     <div className="row g-4 justify-content-center">
                         {
                             apiBlogs && apiBlogs.blogs && apiBlogs.blogs.length > 0 ? (
-                                apiBlogs.blogs.map((item, index) => <div className="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div key={index} className="blog-item">
+                                apiBlogs.blogs.map((item, index) => <div key={index} className="col-md-6 col-lg-4 col-xl-3 wow fadeInUp" data-wow-delay="0.1s">
+                                    <div  className="blog-item">
                                         <div className="blog-img">
                                             <img src={item && item.image} className="img-fluid blogs-img " alt="" />
                                             <div className="blog-info">
