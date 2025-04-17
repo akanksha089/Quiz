@@ -101,19 +101,13 @@ exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     }
 
     const token = User.generateToken(user.id); // Adjust as per your user object structure
-
-   /* res.status(200).json({
-        success: true,
-        user: user[0],
-        token
-    });*/
-   // console.log(user);console.log(token);
   
-    sendToken(user,token,201,res);
-
+    // sendToken(user,token,201,res);
+    sendToken(user, token, res);
     req.flash('msg_response', { status: 200, message: 'Successfully LoggedIn' });
 
-    res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
+    // res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
+    return res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
 });
 
 
