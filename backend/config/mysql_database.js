@@ -1,17 +1,17 @@
-//  const mysql = require("mysql2/promise");
-//  const dotenv = require("dotenv");
-//  dotenv.config({ path: "backend/config/config.env" });
+  // const mysql = require("mysql2/promise");
+  // const dotenv = require("dotenv");
+  // dotenv.config({ path: "backend/config/config.env" });
 
-//  const mysqlPool = mysql.createPool({
-//    host: "localhost",
-//    user: "root",
-//    password: "",
-//    database: "nodejs2",
-//    waitForConnections: true,
-//    connectionLimit: 10,
-//    queueLimit: 0,
-//  });
-//  module.exports = mysqlPool;
+  // const mysqlPool = mysql.createPool({
+  //   host: "localhost",
+  //   user: "root",
+  //   password: "",
+  //   database: "nodejs2",
+  //   waitForConnections: true,
+  //   connectionLimit: 10,
+  //   queueLimit: 0,
+  // });
+  // module.exports = mysqlPool;
 
 
  const mysql = require("mysql2/promise");
@@ -29,7 +29,7 @@
    queueLimit: 0,
  });
 
-// // Testing connection
+
  async function testConnection() {
    try {
      const connection = await mysqlPool.getConnection();

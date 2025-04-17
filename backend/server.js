@@ -1,7 +1,7 @@
 const app = require("./app");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config/config.env" });
-const connectDatabase = require("./config/database");
+// const connectDatabase = require("./config/database");
 const mysqlPool = require("./config/mysql_database");
 
 //handling uncaught exceptions
@@ -13,7 +13,7 @@ process.on("uncaughtException", (err) => {
 
 //console.log(testing);
 
-connectDatabase();
+// connectDatabase();
 // mysqlPool.query('select 1').then((error)=>{
 //     console.log('mysql connection established');
 // })
