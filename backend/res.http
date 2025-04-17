@@ -5,7 +5,7 @@ Accept: application/json
 ###
 
 ### Get a single user
-GET https://jsonplaceholder.typicode.com/users/1
+GET https://quiz-sw6o.onrender.com/api/v1/api-blocks
 Accept: application/json
 
 ###

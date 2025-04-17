@@ -1,14 +1,15 @@
 // utils/api.js
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 export const API_URLS = {
-  apiSetting: 'http://localhost:4000/api/v1/api-settings',
-  apiCategories: 'http://localhost:4000/api/v1/api-categories',
-  apiCourses: 'http://localhost:4000/api/v1/api-courses',
-  apiFaqs: 'http://localhost:4000/api/v1/api-faqs',
-  apiBlogs: 'http://localhost:4000/api/v1/api-blogs',
-  apiTestimonials: 'http://localhost:4000/api/v1/api-testimonials',
-  apiFeatures: 'http://localhost:4000/api/v1/api-features',
-  apiBlocks: 'http://localhost:4000/api/v1/api-blocks',
-  apiContact: 'http://localhost:4000/api/v1/contact',
+  apiSetting: `${API_URL}/api/v1/api-settings`,
+  apiCategories: `${API_URL}/api/v1/api-categories`,
+  apiCourses: `${API_URL}/api/v1/api-courses`,
+  apiFaqs: `${API_URL}/api/v1/api-faqs`,
+  apiBlogs: `${API_URL}/api/v1/api-blogs`,
+  apiTestimonials: `${API_URL}/api/v1/api-testimonials`,
+  apiFeatures: `${API_URL}/api/v1/api-features`,
+  apiBlocks: `${API_URL}/api/v1/api-blocks`,
+  apiContact: `${API_URL}/api/v1/contact`,
   // Add more API URLs as needed
 };
 
