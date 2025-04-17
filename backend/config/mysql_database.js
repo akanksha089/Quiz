@@ -28,8 +28,6 @@
    connectionLimit: 10,
    queueLimit: 0,
  });
-
-
  async function testConnection() {
    try {
      const connection = await mysqlPool.getConnection();

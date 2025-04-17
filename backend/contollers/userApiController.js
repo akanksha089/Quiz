@@ -1,7 +1,7 @@
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ApiFeatures = require("../utils/apiFeatures");
-const sendToken = require("../utils/jwtToken");
+const sendTokenUser = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/userModel");
 const crypto = require("crypto");
@@ -63,46 +63,88 @@ exports.registerUserApi = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Login user
+// exports.loginUserApi = catchAsyncErrors(async (req, res, next) => {
+//   const { email, password } = req.body;
+
+//   // checking that user email and password are provided
+//   if (!email || !password) {
+//     return next(new ErrorHandler("Please enter email and password", 400));
+//   }
+
+//   // Find user by email
+//   const userData = await db.query(
+//     "SELECT * FROM users WHERE email = ? limit 1",
+//     [email]
+//   );
+//   const user = userData[0][0];
+
+//   // If user not found
+//   if (!user) {
+//     return next(new ErrorHandler("Invalid email or password 1", 400));
+//   }
+
+//   // Compare passwords
+//   const isPasswordMatched = await User.comparePasswords(
+//     password,
+//     user.password
+//   );
+
+//   if (!isPasswordMatched) {
+//     return next(new ErrorHandler("Invalid email or password ", 400));
+//   }
+
+//   const token = User.generateToken(user.id); // Adjust as per your user object structure
+
+//   /* res.status(200).json({
+//         success: true,
+//         user: user[0],
+//         token
+//     });*/
+//     // sendTokenUser(user, token, 201, res);
+//     sendTokenUser(user, token, res);
+
+// });
+
 exports.loginUserApi = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
 
-  // checking that user email and password are provided
   if (!email || !password) {
     return next(new ErrorHandler("Please enter email and password", 400));
   }
 
-  // Find user by email
   const userData = await db.query(
     "SELECT * FROM users WHERE email = ? limit 1",
     [email]
   );
   const user = userData[0][0];
 
-  // If user not found
   if (!user) {
-    return next(new ErrorHandler("Invalid email or password 1", 400));
+    return next(new ErrorHandler("Invalid email or password", 400));
   }
 
-  // Compare passwords
   const isPasswordMatched = await User.comparePasswords(
     password,
     user.password
   );
 
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Invalid email or password 2", 400));
+    return next(new ErrorHandler("Invalid email or password", 400));
   }
 
-  const token = User.generateToken(user.id); // Adjust as per your user object structure
+  const token = User.generateToken(user.id);
 
-  /* res.status(200).json({
-        success: true,
-        user: user[0],
-        token
-    });*/
-  // sendToken(user, token, 201, res);
-  sendToken(user, token, res);
+  // ✅ Set cookie
+  sendTokenUser(user, token, res);
+
+  // ✅ Send JSON response to frontend
+  res.status(200).json({
+    success: true,
+    message: 'Login successful',
+    user,
+    token,
+  });
 });
+
 
 exports.logoutApi = catchAsyncErrors(async (req, res, next) => {
   res.cookie("token", null, {
