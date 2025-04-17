@@ -100,7 +100,8 @@ exports.loginUserApi = catchAsyncErrors(async (req, res, next) => {
         user: user[0],
         token
     });*/
-  sendToken(user, token, 201, res);
+  // sendToken(user, token, 201, res);
+  sendToken(user, token, res);
 });
 
 exports.logoutApi = catchAsyncErrors(async (req, res, next) => {
