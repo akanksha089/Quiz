@@ -7,7 +7,7 @@ export const SIGNUP_SUCCESS = 'SIGNUP_SUCCESS';
 export const SIGNUP_FAILURE = 'SIGNUP_FAILURE';
 export const LOGOUT = 'LOGOUT';
 export const LOAD_USER = 'LOAD_USER';
-
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 // Check if token is expired
 const isTokenExpired = (token) => {
   try {
@@ -24,7 +24,7 @@ const isTokenExpired = (token) => {
 export const login = (credentials) => async (dispatch) => {
   try {
     console.log('Logging in with:', credentials); // Log the credentials
-    const response = await fetcher.post('http://localhost:4000/api/v1/api-login', credentials);
+    const response = await fetcher.post(`${API_URL}/api/v1/api-login`, credentials);
 
     // Log the entire response to check its structure
     console.log('API response:', response);
@@ -52,7 +52,7 @@ export const login = (credentials) => async (dispatch) => {
 };
 export const signUp = (credentials) => async (dispatch) => {
   try {
-    const response = await fetcher.post('http://localhost:4000/api/v1/api-register', credentials);
+    const response = await fetcher.post(`${API_URL}/api/v1/api-register`, credentials);
 
     // Check if the response has the expected token
     if (response && response.token) {
