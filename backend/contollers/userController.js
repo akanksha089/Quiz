@@ -67,46 +67,92 @@ exports.showLogin = catchAsyncErrors(async(req, res, next)=>{
  })
 
 // Login user
-exports.loginUser = catchAsyncErrors(async (req, res, next) => {
+// exports.loginUser = catchAsyncErrors(async (req, res, next) => {
     
-    const { email, password } = req.body;
+//     const { email, password } = req.body;
    
-    // checking that user email and password are provided
-    if (!email || !password) {
-        //return next(new ErrorHandler("Please enter email and password", 400));
+//     // checking that user email and password are provided
+//     if (!email || !password) {
+//         //return next(new ErrorHandler("Please enter email and password", 400));
         
+//         req.flash('msg_response', { status: 400, message: 'Please enter email and password' });
+//         res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
+//     }
+
+//     // Find user by email
+//     const userData = await db.query('SELECT * FROM users WHERE email = ? limit 1', [email]);
+//     const user = userData[0][0];
+    
+//     // If user not found
+//     if (!user) {
+        
+//         //return next(new ErrorHandler("Invalid email or password 1", 400));
+//         req.flash('msg_response', { status: 400, message: 'Invalid email or password' });
+//         res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
+//     }
+    
+//     // Compare passwords
+//     const isPasswordMatched = await User.comparePasswords(password, user.password);
+   
+//     if (!isPasswordMatched) {
+//        // return next(new ErrorHandler("Invalid email or password 2", 400));
+//        req.flash('msg_response', { status: 400, message: 'Invalid email or password' });
+//        res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
+//     }
+
+//     const token = User.generateToken(user.id); // Adjust as per your user object structure
+  
+//     // sendToken(user,token,201,res);
+//     sendToken(user, token, 201, res); 
+//     req.flash('msg_response', { status: 200, message: 'Successfully LoggedIn' });
+
+//     // res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
+//     return res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
+// });
+
+
+exports.loginUser = catchAsyncErrors(async (req, res, next) => {
+    const { email, password } = req.body;
+
+    // Checking that user email and password are provided
+    if (!email || !password) {
         req.flash('msg_response', { status: 400, message: 'Please enter email and password' });
-        res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
+        return res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
     }
 
     // Find user by email
     const userData = await db.query('SELECT * FROM users WHERE email = ? limit 1', [email]);
     const user = userData[0][0];
-    
+
     // If user not found
     if (!user) {
-        
-        //return next(new ErrorHandler("Invalid email or password 1", 400));
         req.flash('msg_response', { status: 400, message: 'Invalid email or password' });
-        res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
+        return res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
     }
-    
+
     // Compare passwords
     const isPasswordMatched = await User.comparePasswords(password, user.password);
-   
+
     if (!isPasswordMatched) {
-       // return next(new ErrorHandler("Invalid email or password 2", 400));
-       req.flash('msg_response', { status: 400, message: 'Invalid email or password' });
-       res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
+        req.flash('msg_response', { status: 400, message: 'Invalid email or password' });
+        return res.redirect(`/${process.env.ADMIN_PREFIX}/login`);
     }
 
     const token = User.generateToken(user.id); // Adjust as per your user object structure
-  
-    // sendToken(user,token,201,res);
-    sendToken(user, token, res);
-    req.flash('msg_response', { status: 200, message: 'Successfully LoggedIn' });
 
-    // res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
+    // Set the token as a cookie (no need to return any JSON response)
+    const options = {
+        expires: new Date(Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+    };
+
+    res.cookie('token', token, options);
+
+    // Set success flash message
+    req.flash('msg_response', { status: 200, message: 'Successfully Logged In' });
+
+    // Redirect to dashboard
     return res.redirect(`/${process.env.ADMIN_PREFIX}/dashboard`);
 });
 

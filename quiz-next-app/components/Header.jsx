@@ -44,7 +44,7 @@ function Header({settingData}) {
                 </div>
                 <a onClick={openModal}  className="btn btn-light border border-primary rounded-pill text-primary py-2 px-4 me-4">Log In</a>
                 <Login show={isModalOpen} onClose={closeModal}/>
-                <a href="#" className="btn btn-primary rounded-pill text-white py-2 px-4">Sign Up</a>
+                <a onClick={openModal} className="btn btn-primary rounded-pill text-white py-2 px-4">Sign Up</a>
             </div>
         </nav>
 

@@ -11,6 +11,7 @@ const Contact = () => {
     const apiSettingData = useSelector((state) => state?.apiData?.data?.apisetting);
     const settingData = apiSettingData?.settings;
 
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const [loading, setLoading] = useState(true);
     const [defaultMeta, setDefaultMeta] = useState({
         title: '',
@@ -40,7 +41,7 @@ const Contact = () => {
         setSuccessMessage('');
 
         try {
-            const res = await fetch('http://localhost:4000/api/v1/contact', {
+            const res = await fetch(`${API_URL}/api/v1/contact`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

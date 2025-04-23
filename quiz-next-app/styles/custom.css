@@ -1,0 +1,67 @@
+
+  
+  .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .card-animate {
+    transition: all 0.3s ease;
+    border: 1px solid #f3f3f3;
+    box-shadow: 0 0 10px rgba(0,0,0,0.03);
+  }
+  .card-animate:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  .card-header {
+    background-color: #f74780;
+    color: white;
+    font-weight: bold;
+  }
+  
+  
+  .btn-pink {
+    background-color: #f74780;
+    color: white;
+  }
+  
+  .btn-pink:hover {
+    background-color: #ff85c1;
+  }
+  
+  .text-pink {
+    color: #f74780;
+  }
+  .profile-full-section {
+    position: relative;
+    width: 100%;
+    margin-bottom: 100px;
+  }
+  
+  .profile-hero-banner {
+    height: 300px;
+    background: linear-gradient(to right, #ff5c8d, #ffc0cb);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .profile-main-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 16px;
+    position: relative;
+    top: -100px;
+  }
+  
+  .profile-img {
+    border: 4px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .quiz-slider {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  

@@ -14,7 +14,7 @@ const app = express();
 app.use(
   cors({
     origin: "https://quiz-phi-neon.vercel.app", // Adjust your frontend URL
-    // origin: "http://localhost:3000", // Adjust your frontend URL
+     //origin: "http://localhost:3000", // Adjust your frontend URL
     credentials: true,
   })
 );

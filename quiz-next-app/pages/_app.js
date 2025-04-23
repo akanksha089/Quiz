@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { wrapper } from '../store/store';
 import { loadUserFromLocalStorage } from '../store/actions/authActions'; // Adjusted import
 import '../styles/globals.css';
+import '../styles/custom.css';
 
 function MyApp({ Component, pageProps }) {
   const dispatch = useDispatch();

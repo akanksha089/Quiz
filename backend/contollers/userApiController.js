@@ -1,7 +1,7 @@
 const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ApiFeatures = require("../utils/apiFeatures");
-const sendTokenUser = require("../utils/jwtToken");
+const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
 const User = require("../models/userModel");
 const crypto = require("crypto");
@@ -57,7 +57,11 @@ exports.registerUserApi = catchAsyncErrors(async (req, res, next) => {
   ]);
   const user = userDetail[0][0];
   // Assuming `user` is the object returned from MySQL query
-  const token = User.generateToken(user.id); // Adjust as per your user object structure
+  const token = User.generateToken(user.id); 
+  res.cookie('testCookie', 'testValue', {
+    httpOnly: true,
+    expires: new Date(Date.now() + 86400000), // 1 day
+  });// Adjust as per your user object structure
 
   sendToken(user, token, 201, res);
 });
@@ -134,7 +138,7 @@ exports.loginUserApi = catchAsyncErrors(async (req, res, next) => {
   const token = User.generateToken(user.id);
 
   // ✅ Set cookie
-  sendTokenUser(user, token, res);
+  sendToken(user, token, 201, res); 
 
   // ✅ Send JSON response to frontend
   res.status(200).json({

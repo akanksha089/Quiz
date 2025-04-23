@@ -26,8 +26,14 @@ export default function Login({ show, onClose }) {
       await dispatch(login({ email, password }));
       onClose(); // Close the modal only after successful login
     } catch (error) {
+      try {
+        const parsed = JSON.parse(error.message); // Try to parse the error message
+        setErrorMessage(parsed.error || 'Login failed'); // Use parsed error
+      } catch {
+        setErrorMessage('Login failed'); // Fallback message
+      }
       // Set the error message if login fails
-      setErrorMessage('Login failed: ' + error.message);
+      // setErrorMessage('Login failed: ' + error.message);
     }
   };
 
@@ -45,8 +51,13 @@ export default function Login({ show, onClose }) {
       setEmailSign('');
       setPasswordSign('');
     } catch (error) {
-      // Set the error message if signup fails
-      setErrorMessage('Signup failed: ' + error.message);
+      try {
+        const parsed = JSON.parse(error.message); // Try to parse the error message
+        setErrorMessage(parsed.error || 'Signup failed'); // Use parsed error
+      } catch {
+        setErrorMessage('Signup failed'); // Fallback message
+      }
+
     }
   };
 
@@ -123,6 +134,8 @@ export default function Login({ show, onClose }) {
                 <form className="ui large form bg-white" onSubmit={handleSignup}>
                   <div className="ui segment">
                     <h2 className="">Sign up for an Account</h2>
+                    {errorMessage && <div className="alert alert-danger">{errorMessage}</div>} {/* Display error message */}
+
                     <div className="form-floating my-2">
                       <input
                         type="text"
