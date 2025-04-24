@@ -130,7 +130,7 @@ console.log('quizData', quizData)
                                 <div className="container mt-4">
                                     <div className="d-flex justify-content-between align-items-center mb-3">
                                         <h5 className="fw-bold text-pink">Recommended Quizzes</h5>
-                                        <a href="/" className="btn btn-outline-pink btn-sm">See All Quizzes</a>
+                                        <Link href="/" className="btn btn-outline-pink btn-sm">See All Quizzes</Link>
                                     </div>
 
                                     <div className="quiz-slider d-flex gap-3 overflow-auto pb-2">

@@ -1,5 +1,6 @@
 import React from 'react';
 import parse from 'html-react-parser';
+import Link from 'next/link';
 
 function AboutUs({apiBlocks}) {
     const blogs = apiBlocks && apiBlocks.blogs;
@@ -23,7 +24,7 @@ function AboutUs({apiBlocks}) {
                         <p className="mb-4 font-custom">
                         { about && typeof about.description === 'string' && parse(about.description) }
                         </p>
-                        <a href="/about" className="btn btn-primary rounded-pill py-3 px-5">About More</a>
+                        <Link href="/about" className="btn btn-primary rounded-pill py-3 px-5">About More</Link>
                     </div>
                 </div>
             </div>
