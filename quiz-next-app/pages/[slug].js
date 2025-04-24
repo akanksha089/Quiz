@@ -17,6 +17,7 @@ const Quiz = () => {
     const dispatch = useDispatch();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
+    const [timerStarted, setTimerStarted] = useState(false);
     const apiSettingData = useSelector((state) => state.apiData.data.apisetting);
     const settingData = apiSettingData && apiSettingData.settings
     const [loading, setLoading] = useState(true);
@@ -131,23 +132,27 @@ const Quiz = () => {
     }, [slug]);
 
     useEffect(() => {
+        let timerId;
+
         if (timeLeft > 0) {
-            const timerId = setInterval(() => {
-                setTimeLeft((prevTime) => prevTime - 1); // Decrease time by 1
+            setTimerStarted(true); // Mark that timer has started
+            timerId = setInterval(() => {
+                setTimeLeft((prevTime) => prevTime - 1);
             }, 1000);
-            return () => clearInterval(timerId); // Clean up interval on unmount or when timeLeft changes
+        } else if (timerStarted && timeLeft === 0) {
+            router.push('/'); // Only redirect after timer has run and hit 0
         }
-        else {
-            // Time is up, navigate to home page
-            router.push('/');
-        }
-    }, [timeLeft]);
+
+        return () => clearInterval(timerId);
+    }, [timeLeft, timerStarted, router]);
 
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${minutes} min ${secs < 10 ? '0' : ''}${secs} sec`;
     };
+
+
     const handleSubmitQuiz = () => {
         const questions = courseData.quizzes[0].questions;
         let score = 0;
