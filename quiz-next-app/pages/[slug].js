@@ -11,7 +11,7 @@ import Login from '../components/Login';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAPIData } from '../store/actions/homeActions';
 import { loadUserFromLocalStorage, checkToken } from '../store/actions/authActions';
-import { useRouter } from 'next/router'; // ✅ For pages/ directory (Next.js 12/13 Pages Router)
+import { useRouter } from 'next/router'; 
 
 const Quiz = () => {
     const dispatch = useDispatch();
@@ -136,6 +136,10 @@ const Quiz = () => {
                 setTimeLeft((prevTime) => prevTime - 1); // Decrease time by 1
             }, 1000);
             return () => clearInterval(timerId); // Clean up interval on unmount or when timeLeft changes
+        }
+        else {
+            // Time is up, navigate to home page
+            router.push('/');
         }
     }, [timeLeft]);
 

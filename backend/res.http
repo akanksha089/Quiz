@@ -5,8 +5,15 @@ Accept: application/json
 ###
 
 ### Get a single user
-GET https://quiz-sw6o.onrender.com/api/v1/api-categories
+GET http://localhost:4000/api/v1/api-me
 Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzQ1NDc5NDE2LCJleHAiOjE3NDU5MTE0MTZ9.hIen-c9wba8s-Qk6Yi1SyR0cvC3bRamEXRqX2M76jwY
+
+### Get a single user
+GET http://localhost:4000/api/v1/api-quizzes
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzQ1NDc5NDE2LCJleHAiOjE3NDU5MTE0MTZ9.hIen-c9wba8s-Qk6Yi1SyR0cvC3bRamEXRqX2M76jwY
+
 
 ###
 

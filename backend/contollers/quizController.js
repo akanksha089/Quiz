@@ -206,6 +206,31 @@ exports.getAllRecords = catchAsyncErrors(async (req, res, next) => {
 });
 
 
+
+exports.getAllQuizzesApi = catchAsyncErrors(async (req, res, next) => {
+  const [quizzes] = await db.query(
+    `SELECT 
+    q.id,
+    q.title,
+    q.course_id,
+    q.created_at,
+    q.updated_at,
+    c.title AS course_title,
+    c.slug AS course_slug,
+    COUNT(qq.id) AS question_count
+ FROM quizzes q
+ LEFT JOIN courses c ON q.course_id = c.id
+ LEFT JOIN quiz_questions qq ON q.id = qq.quiz_id
+ GROUP BY q.id
+ ORDER BY q.id DESC`
+  );
+
+  res.status(200).json({
+    success: true,
+    quizzes,
+  });
+});
+
 exports.showDetails = catchAsyncErrors(async (req, res, next) => {
   const quizId = req.params.id;
 

@@ -23,7 +23,7 @@ function AboutUs({apiBlocks}) {
                         <p className="mb-4 font-custom">
                         { about && typeof about.description === 'string' && parse(about.description) }
                         </p>
-                        <a href="#" className="btn btn-primary rounded-pill py-3 px-5">About More</a>
+                        <a href="/about" className="btn btn-primary rounded-pill py-3 px-5">About More</a>
                     </div>
                 </div>
             </div>

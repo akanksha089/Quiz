@@ -2,12 +2,17 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAPIData } from '../store/actions/homeActions';
+import { fetchUser , fetchAllQuiz } from '../store/actions/dashboardActions';
 
 export default function Dashboard() {
     const dispatch = useDispatch();
     const apiSettingData = useSelector((state) => state?.apiData?.data?.apisetting);
+      // Getting data from Redux store
+  const { userData,  error } = useSelector((state) => state?.dashboardData);
+  const quizData= useSelector((state) => state?.dashboardData?.quizData);
     const settingData = apiSettingData?.settings;
     const [loading, setLoading] = useState(true);
     const [defaultMeta, setDefaultMeta] = useState({
@@ -16,10 +21,12 @@ export default function Dashboard() {
         keyword: ''
     });
     const [activeTab, setActiveTab] = useState('profile')
-
+console.log('quizData', quizData)
     const handleTabClick = (tab) => setActiveTab(tab)
     useEffect(() => {
         dispatch(fetchAPIData('apiSetting'));
+        dispatch(fetchUser()); // Fetch user data on component mount
+        dispatch(fetchAllQuiz()); // Fetch user data on component mount
     }, [dispatch]);
 
     useEffect(() => {
@@ -36,7 +43,7 @@ export default function Dashboard() {
     return (
         <div className="body-custom">
             <Head>
-                <title>{settingData?.site_title || 'Contact Us'}</title>
+                <title>{settingData?.site_title || 'Dashboard'}</title>
                 <meta name="title" content={defaultMeta.title} />
                 <meta name="description" content={defaultMeta.description} />
                 <meta name="keyword" content={defaultMeta.keyword} />
@@ -65,7 +72,7 @@ export default function Dashboard() {
                     {/* Main Content */}
                     <div className="col-md-9 col-lg-10 py-5 px-4 bg-light min-vh-100">
                         <div className="d-flex justify-content-between align-items-center mb-4">
-                            <h2 className="text-pink">Welcome, Priya 👋</h2>
+                            <h2 className="text-pink">Welcome, {userData?.user?.name} 👋</h2>
                             <img src="https://thumbs.dreamstime.com/z/woman-profile-cartoon-graphic-design-vector-illustration-eps-63800342.jpg" alt="Profile" width="50" height="50" className="rounded-circle border" />
                         </div>
                         {/* Tab Content */}
@@ -93,13 +100,13 @@ export default function Dashboard() {
 
                                             {/* User Info */}
                                             <div className="col-md-9">
-                                                <h3 className="fw-bold text-pink">Priya Sharma</h3>
-                                                <p className="mb-1"><i className="bi bi-envelope"></i> priya@example.com</p>
+                                                <h3 className="fw-bold text-pink">{userData?.user?.name}</h3>
+                                                <p className="mb-1"><i className="bi bi-envelope"></i> {userData?.user?.email}</p>
                                                 <p className="mb-0"><i className="bi bi-patch-check-fill text-success"></i> Active Member</p>
                                             </div>
                                         </div>
                                         <p className='m-3 text-center'>
-                                            An artist of considerable range, Jenna the name taken by Melbourne-raised, Brooklyn-based Nick Murphy writes, performs and records all of his own music, giving it a warm, intimate feel with a solid groove structure. An artist of considerable range.
+                                        A quiz user is someone who engages with quizzes for fun, learning, or competition, often testing knowledge, exploring new topics, or challenging friends across various platforms or subjects.
                                         </p>
                                         <hr className="my-4" />
 
@@ -127,15 +134,22 @@ export default function Dashboard() {
                                     </div>
 
                                     <div className="quiz-slider d-flex gap-3 overflow-auto pb-2">
-                                        {[1, 2, 3, 4, 5].map((quiz, index) => (
-                                            <div className="card quiz-card shadow-sm flex-shrink-0" key={index}>
-                                                <div className="card-body">
-                                                    <h6 className="fw-bold text-dark">Quiz {quiz} - Web Development</h6>
-                                                    <p className="text-muted small mb-2">20 Questions • 15 min</p>
-                                                    <button className="btn btn-sm btn-pink">Start Quiz</button>
-                                                </div>
+                                        {quizData && quizData.quizzes && quizData.quizzes.length > 0 ? (
+
+                                        quizData && quizData.quizzes.map((quiz, index) => (
+                                            <div className="card quiz-card shadow-sm flex-shrink-0 p-3 mb-3" key={index} style={{ minWidth: '280px', borderRadius: '12px' }}>
+                                            <div className="card-body">
+                                                <h5 className="fw-bold text-dark mb-2">📘 Quiz {index + 1}: {quiz?.title}</h5>
+                                                <p className="text-muted mb-3">
+                                                    {quiz?.question_count} Questions • {quiz?.quiz_time} min
+                                                </p>
+                                                {/* <button className="btn btn-pink w-100 fw-semibold">🚀 Start Quiz</button> */}
+                                                <Link href={`/${quiz?.course_slug || ''}`} className="btn btn-light rounded-pill text-primary py-2 px-4">
+                                                🚀 Start Quiz
+                                                                                            </Link>
                                             </div>
-                                        ))}
+                                        </div>
+                                        )) ): ""}
                                     </div>
                                 </div>
 
