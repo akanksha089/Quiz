@@ -13,6 +13,7 @@ export default function Login({ show, onClose }) {
   const [name, setName] = useState('');
   const [emailSign, setEmailSign] = useState('');
   const [passwordSign, setPasswordSign] = useState('');
+  const [confirmPassword, setconfirmPassword] = useState('');
   const [role, setRole] = useState('user');
   const [errorMessage, setErrorMessage] = useState('');
   const [currentTab, setCurrentTab] = useState('login'); // Track the current tab
@@ -43,13 +44,14 @@ export default function Login({ show, onClose }) {
 
     try {
       // Dispatch signup action and wait for it to complete
-      await dispatch(signUp({ name, role, email: emailSign, password: passwordSign }));
+      await dispatch(signUp({ name, role, email: emailSign, password: passwordSign, confirmPassword: confirmPassword }));
       // Switch to login tab after successful signup
       setCurrentTab('login');
       // Optionally, clear signup fields
       setName('');
       setEmailSign('');
       setPasswordSign('');
+      setconfirmPassword('');
     } catch (error) {
       try {
         const parsed = JSON.parse(error.message); // Try to parse the error message
@@ -168,6 +170,17 @@ export default function Login({ show, onClose }) {
                         onChange={(e) => setPasswordSign(e.target.value)}
                       />
                       <label htmlFor="passwordSign">Create Password</label>
+                    </div>
+                    <div className="form-floating my-2">
+                      <input
+                        type="password"
+                        className="form-control"
+                        id="passwordSign"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setconfirmPassword(e.target.value)}
+                      />
+                      <label htmlFor="passwordSign">Confirm Password</label>
                     </div>
                     <div className="col-12">
                       <button

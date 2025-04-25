@@ -41,6 +41,22 @@ Content-Type: application/json
   "confirmPassword": "12345678"
 }
 
+### Create a quiz
+POST https://quiz-sw6o.onrender.com/api/v1/quiz-submit
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsImlhdCI6MTc0NTU4NDc3OSwiZXhwIjoxNzQ2MDE2Nzc5fQ.rSt7oH4mLS_Z3utYyaNlLI3SxqfToML7QE7sR8SPKZo
+
+
+{
+  "attempted": "2",
+  "correct": "2",
+  "quiz_id": "4",
+  "quiz_title": "React Quiz",
+  "total_questions": "2",
+  "wrong": "0"
+  
+}
+
 ###
 
 ### Update a user

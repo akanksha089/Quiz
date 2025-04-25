@@ -13,11 +13,18 @@ const registerSchema = Joi.object({
   name: Joi.string().required().max(50),
   email: Joi.string().email().required().max(255),
   password: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('password')).required().messages({
+    'any.only': 'Passwords must match',  // Custom error message
+  }),
 });
 
 // Register a user
 exports.registerUserApi = catchAsyncErrors(async (req, res, next) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, confirmPassword, role } = req.body;
+   // Check if password and confirmPassword match
+   if (password !== confirmPassword) {
+    return next(new ErrorHandler("Passwords do not match", 400));
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
