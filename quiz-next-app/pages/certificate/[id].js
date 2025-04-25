@@ -108,7 +108,9 @@ const Certificate = () => {
                                     <div className="certificate-content">
                                         <div className="about-certificate">
                                             <p>
-                                            has completed  on topic "{quizResult?.quiz_title}" 
+                                            has completed  on topic 
+                                            
+                                            <strong>{quizResult?.quiz_title}</strong>
 
                                             </p>
                                         </div>
