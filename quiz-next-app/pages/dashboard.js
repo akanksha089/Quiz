@@ -158,15 +158,15 @@ export default function Dashboard() {
                                         <div className="row text-center">
                                             <div className="col-md-4">
                                                 <h6 className="text-muted">Total Quizzes</h6>
-                                                <h4 className="text-pink">{userQuizData?.data?.quizzes_attempted}</h4>
+                                                <h4 className="text-pink">{userQuizData?.data?.quizzes_attempted ? userQuizData?.data?.quizzes_attempted : "0"}</h4>
                                             </div>
                                             <div className="col-md-4">
                                                 <h6 className="text-muted">Certificates</h6>
-                                                <h4 className="text-pink">{userQuizData?.data?.certificates_awarded}</h4>
+                                                <h4 className="text-pink">{userQuizData?.data?.certificates_awarded ? userQuizData?.data?.certificates_awarded : "0"}</h4>
                                             </div>
                                             <div className="col-md-4">
                                                 <h6 className="text-muted">Average Score</h6>
-                                                <h4 className="text-pink">{Math.round(Number(userQuizData?.data?.average_score_percent))}%
+                                                <h4 className="text-pink">{Math.round(Number(userQuizData?.data?.average_score_percent ? userQuizData?.data?.average_score_percent : "0"))}%
                                                 </h4>
                                             </div>
                                         </div>
@@ -246,7 +246,7 @@ export default function Dashboard() {
                                         <div className="card card-animate text-center">
                                             <div className="card-body">
                                                 <h5 className="card-title text-muted">Total Quizzes</h5>
-                                                <h2 className="text-pink">{userQuizData?.data?.quizzes_attempted}</h2>
+                                                <h2 className="text-pink">{userQuizData?.data?.quizzes_attempted ? userQuizData?.data?.quizzes_attempted : "0"}</h2>
                                             </div>
                                         </div>
                                     </div>
@@ -254,7 +254,7 @@ export default function Dashboard() {
                                         <div className="card card-animate text-center">
                                             <div className="card-body">
                                                 <h5 className="card-title text-muted">Certificates</h5>
-                                                <h2 className="text-pink">{userQuizData?.data?.certificates_awarded}</h2>
+                                                <h2 className="text-pink">{userQuizData?.data?.certificates_awarded ? userQuizData?.data?.certificates_awarded : "0"}</h2>
                                             </div>
                                         </div>
                                     </div>
@@ -262,7 +262,7 @@ export default function Dashboard() {
                                         <div className="card card-animate text-center">
                                             <div className="card-body">
                                                 <h5 className="card-title text-muted">Average Score</h5>
-                                                <h2 className="text-pink">{Math.round(Number(userQuizData?.data?.average_score_percent))}%</h2>
+                                                <h2 className="text-pink">{Math.round(Number(userQuizData?.data?.average_score_percent ? userQuizData?.data?.average_score_percent : "0"))}%</h2>
                                             </div>
                                         </div>
                                     </div>
