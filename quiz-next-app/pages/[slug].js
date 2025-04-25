@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAPIData } from '../store/actions/homeActions';
 import { loadUserFromLocalStorage, checkToken } from '../store/actions/authActions';
 import { useRouter } from 'next/router'; 
+import axios from 'axios';
 
 const Quiz = () => {
     const dispatch = useDispatch();
@@ -35,11 +36,10 @@ const Quiz = () => {
         description: '',
         keyword: ''
     });
-    console.log('courseData', courseData)
     useEffect(() => {
         dispatch(fetchAPIData('apiSetting'));
     }, [dispatch]);
-
+// console.log('courseData', courseData)
     useEffect(() => {
         if (settingData) {
             const { default_meta_title, default_meta_description, default_meta_keyword } = settingData;
@@ -152,29 +152,88 @@ const Quiz = () => {
         return `${minutes} min ${secs < 10 ? '0' : ''}${secs} sec`;
     };
 
+    // const handleSubmitQuiz = () => {
+    //     const questions = courseData.quizzes[0].questions;
+    //     let score = 0;
+    
+    //     questions.forEach((q) => {
+    //         if (answers[q.id] === q.correct_answer) {
+    //             score += 1;
+    //         }
+    //     });
+    
+    //     const resultData = {
+    //         totalQuestions: questions.length,
+    //         correctAnswers: score,
+    //         userAnswers: answers,
+    //         quizTitle: courseData.quizzes[0].title,
+    //     };
+    
+    //     // Save result in localStorage or pass via query string/state (easiest: localStorage)
+    //     localStorage.setItem("quizResult", JSON.stringify(resultData));
+    
+    //     router.push("/thankyou");
+    // };
 
-    const handleSubmitQuiz = () => {
+    const handleSubmitQuiz = async () => {
         const questions = courseData.quizzes[0].questions;
         let score = 0;
-    
+      
         questions.forEach((q) => {
-            if (answers[q.id] === q.correct_answer) {
-                score += 1;
-            }
+          if (answers[q.id] === q.correct_answer) {
+            score += 1;
+          }
         });
-    
-        const resultData = {
-            totalQuestions: questions.length,
-            correctAnswers: score,
-            userAnswers: answers,
-            quizTitle: courseData.quizzes[0].title,
+      
+        const totalQuestions = questions.length;
+        const correctAnswers = score;
+        const wrongAnswers = totalQuestions - score;
+      
+        // Assuming quiz_id is available from courseData
+        const quizId = courseData.quizzes[0].id;
+  const quizTitle = courseData.quizzes[0].title;
+      
+        const payload = {
+          quiz_id: quizId,
+          quiz_title: quizTitle, // ✅ Pass title here
+          total_questions: totalQuestions,
+          attempted: totalQuestions,
+          correct: correctAnswers,
+          wrong: wrongAnswers,
         };
-    
-        // Save result in localStorage or pass via query string/state (easiest: localStorage)
-        localStorage.setItem("quizResult", JSON.stringify(resultData));
-    
-        router.push("/thankyou");
-    };
+      
+        try {
+            const user = localStorage.getItem('user');
+            const { token } = JSON.parse(user);
+          const res = await axios.post(
+            `${API_URL}/api/v1/quiz-submit`,
+            payload,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+      
+          if (res.data.success) {
+            console.log('Quiz submitted:', res.data);
+            localStorage.setItem('quizResult', JSON.stringify({
+              ...payload,
+              score: res.data.data.score,
+              certificate_awarded: res.data.data.certificate_awarded,
+              certificate_expiration: res.data.data.certificate_expiration,
+            }));
+            localStorage.setItem('quizSubmitted', 'true');
+
+            router.push(`/thankyou/${res.data.data.quiz_id}`);
+          } else {
+            console.error('Quiz submission failed:', res.data.message);
+          }
+        } catch (error) {
+          console.error('Error submitting quiz:', error.message);
+          alert('Failed to submit quiz. Please try again.');
+        }
+      };
     if (!courseData) return <div>Loading...</div>;
 
     return (

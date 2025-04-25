@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+// import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAPIData } from '../store/actions/homeActions';
-import { fetchUser , fetchAllQuiz } from '../store/actions/dashboardActions';
+import { fetchUser, fetchAllQuiz, fetchUserData } from '../store/actions/dashboardActions';
 
 export default function Dashboard() {
     const dispatch = useDispatch();
     const apiSettingData = useSelector((state) => state?.apiData?.data?.apisetting);
-      // Getting data from Redux store
-  const { userData,  error } = useSelector((state) => state?.dashboardData);
-  const quizData= useSelector((state) => state?.dashboardData?.quizData);
+    // Getting data from Redux store
+    const { userData } = useSelector((state) => state?.dashboardData);
+    const quizData = useSelector((state) => state?.dashboardData?.quizData);
+    const userQuizData = useSelector((state) => state?.dashboardData?.userQuizData);
     const settingData = apiSettingData?.settings;
     const [loading, setLoading] = useState(true);
     const [defaultMeta, setDefaultMeta] = useState({
@@ -21,12 +22,55 @@ export default function Dashboard() {
         keyword: ''
     });
     const [activeTab, setActiveTab] = useState('profile')
-console.log('quizData', quizData)
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const handleTabClick = (tab) => setActiveTab(tab)
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        const user = localStorage.getItem('user');
+        const { token } = JSON.parse(user);
+
+        if (!token) {
+            setError('User not authenticated');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/api/v1/api-password/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setSuccess('Password changed successfully!');
+                // 🧹 Clear input fields
+                setOldPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+            } else {
+                setError(data.error || 'Failed to update password.');
+            }
+        } catch (err) {
+            setError('Something went wrong. Please try again.');
+        }
+    };
     useEffect(() => {
         dispatch(fetchAPIData('apiSetting'));
         dispatch(fetchUser()); // Fetch user data on component mount
         dispatch(fetchAllQuiz()); // Fetch user data on component mount
+        dispatch(fetchUserData()); // Fetch user data on component mount
     }, [dispatch]);
 
     useEffect(() => {
@@ -57,7 +101,7 @@ console.log('quizData', quizData)
                     <div className="col-md-3 col-lg-2 sidebar bg-white shadow-sm py-4">
                         <h4 className="text-center text-pink mb-4">My Dashboard</h4>
                         <ul className="nav flex-column">
-                            {['profile', 'password', 'results', 'certificates'].map((tab) => (
+                            {['profile', 'password', 'results'].map((tab) => (
                                 <li className="nav-item mb-2" key={tab}>
                                     <button
                                         className={`nav-link btn w-100 text-start ${activeTab === tab ? 'text-pink fw-bold' : 'text-dark'}`}
@@ -106,23 +150,24 @@ console.log('quizData', quizData)
                                             </div>
                                         </div>
                                         <p className='m-3 text-center'>
-                                        A quiz user is someone who engages with quizzes for fun, learning, or competition, often testing knowledge, exploring new topics, or challenging friends across various platforms or subjects.
+                                            A quiz user is someone who engages with quizzes for fun, learning, or competition, often testing knowledge, exploring new topics, or challenging friends across various platforms or subjects.
                                         </p>
                                         <hr className="my-4" />
 
                                         {/* Details Section */}
                                         <div className="row text-center">
                                             <div className="col-md-4">
-                                                <h6 className="text-muted">Total Exams</h6>
-                                                <h4 className="text-pink">5</h4>
+                                                <h6 className="text-muted">Total Quizzes</h6>
+                                                <h4 className="text-pink">{userQuizData?.data?.quizzes_attempted}</h4>
                                             </div>
                                             <div className="col-md-4">
                                                 <h6 className="text-muted">Certificates</h6>
-                                                <h4 className="text-pink">3</h4>
+                                                <h4 className="text-pink">{userQuizData?.data?.certificates_awarded}</h4>
                                             </div>
                                             <div className="col-md-4">
                                                 <h6 className="text-muted">Average Score</h6>
-                                                <h4 className="text-pink">88%</h4>
+                                                <h4 className="text-pink">{Math.round(Number(userQuizData?.data?.average_score_percent))}%
+                                                </h4>
                                             </div>
                                         </div>
                                     </div>
@@ -136,20 +181,20 @@ console.log('quizData', quizData)
                                     <div className="quiz-slider d-flex gap-3 overflow-auto pb-2">
                                         {quizData && quizData.quizzes && quizData.quizzes.length > 0 ? (
 
-                                        quizData && quizData.quizzes.map((quiz, index) => (
-                                            <div className="card quiz-card shadow-sm flex-shrink-0 p-3 mb-3" key={index} style={{ minWidth: '280px', borderRadius: '12px' }}>
-                                            <div className="card-body">
-                                                <h5 className="fw-bold text-dark mb-2">📘 Quiz {index + 1}: {quiz?.title}</h5>
-                                                <p className="text-muted mb-3">
-                                                    {quiz?.question_count} Questions • {quiz?.quiz_time} min
-                                                </p>
-                                                {/* <button className="btn btn-pink w-100 fw-semibold">🚀 Start Quiz</button> */}
-                                                <Link href={`/${quiz?.course_slug || ''}`} className="btn btn-light rounded-pill text-primary py-2 px-4">
-                                                🚀 Start Quiz
-                                                                                            </Link>
-                                            </div>
-                                        </div>
-                                        )) ): ""}
+                                            quizData && quizData.quizzes.map((quiz, index) => (
+                                                <div className="card quiz-card shadow-sm flex-shrink-0 p-3 mb-3" key={index} style={{ minWidth: '280px', borderRadius: '12px' }}>
+                                                    <div className="card-body">
+                                                        <h5 className="fw-bold text-dark mb-2">📘 Quiz {index + 1}: {quiz?.title}</h5>
+                                                        <p className="text-muted mb-3">
+                                                            {quiz?.question_count} Questions • {quiz?.quiz_time} min
+                                                        </p>
+                                                        {/* <button className="btn btn-pink w-100 fw-semibold">🚀 Start Quiz</button> */}
+                                                        <Link href={`/${quiz?.course_slug || ''}`} className="btn btn-light rounded-pill text-primary py-2 px-4">
+                                                            🚀 Start Quiz
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            ))) : ""}
                                     </div>
                                 </div>
 
@@ -162,16 +207,34 @@ console.log('quizData', quizData)
                             <div className="card mb-4">
                                 <div className="card-header bg-pink text-white">Change Password</div>
                                 <div className="card-body">
-                                    <form>
+                                    <form onSubmit={handleChangePassword}>
                                         <div className="mb-3">
                                             <label>Current Password</label>
-                                            <input type="password" className="form-control" />
+                                            <input type="password" placeholder="Current Password"
+                                                value={oldPassword}
+                                                onChange={(e) => setOldPassword(e.target.value)} required
+                                                className="form-control" />
                                         </div>
                                         <div className="mb-3">
                                             <label>New Password</label>
-                                            <input type="password" className="form-control" />
+                                            <input type="password" placeholder="New Password"
+                                                value={newPassword}
+                                                onChange={(e) => setNewPassword(e.target.value)}
+                                                required
+                                                className="form-control" />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label>Confirm  Password</label>
+                                            <input type="password"
+                                                placeholder="Confirm Password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                required
+                                                className="form-control" />
                                         </div>
                                         <button type="submit" className="btn btn-pink">Update</button>
+                                        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+                                        {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
                                     </form>
                                 </div>
                             </div>
@@ -182,8 +245,8 @@ console.log('quizData', quizData)
                                     <div className="col-md-4">
                                         <div className="card card-animate text-center">
                                             <div className="card-body">
-                                                <h5 className="card-title text-muted">Total Exams</h5>
-                                                <h2 className="text-pink">5</h2>
+                                                <h5 className="card-title text-muted">Total Quizzes</h5>
+                                                <h2 className="text-pink">{userQuizData?.data?.quizzes_attempted}</h2>
                                             </div>
                                         </div>
                                     </div>
@@ -191,7 +254,7 @@ console.log('quizData', quizData)
                                         <div className="card card-animate text-center">
                                             <div className="card-body">
                                                 <h5 className="card-title text-muted">Certificates</h5>
-                                                <h2 className="text-pink">3</h2>
+                                                <h2 className="text-pink">{userQuizData?.data?.certificates_awarded}</h2>
                                             </div>
                                         </div>
                                     </div>
@@ -199,19 +262,19 @@ console.log('quizData', quizData)
                                         <div className="card card-animate text-center">
                                             <div className="card-body">
                                                 <h5 className="card-title text-muted">Average Score</h5>
-                                                <h2 className="text-pink">88%</h2>
+                                                <h2 className="text-pink">{Math.round(Number(userQuizData?.data?.average_score_percent))}%</h2>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="card">
-                                    <div className="card-header bg-pink text-white">Exam Results</div>
+                                    <div className="card-header bg-pink text-white">Quizz Results</div>
                                     <div className="card-body table-responsive">
                                         <table className="table table-striped text-center">
                                             <thead>
                                                 <tr>
-                                                    <th>Exam</th>
+                                                    <th>Quizz</th>
                                                     <th>Date</th>
                                                     <th>Certificate Expiry</th>
                                                     <th>Total Questions</th>
@@ -223,17 +286,44 @@ console.log('quizData', quizData)
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>HTML Basics</td>
-                                                    <td>2025-04-01</td>
-                                                    <td>2026-04-01</td>
-                                                    <td>20</td>
-                                                    <td>20</td>
-                                                    <td>18</td>
-                                                    <td>2</td>
-                                                    <td>90%</td>
-                                                    <td><button className="btn btn-sm btn-pink">Download</button></td>
-                                                </tr>
+                                                {
+                                                    userQuizData && userQuizData.data && userQuizData.data.quiz_details && userQuizData.data.quiz_details.length > 0 ? (
+                                                        userQuizData.data.quiz_details && userQuizData.data.quiz_details.map((data, index) => (
+                                                            <tr key={index}>
+                                                                <td>{data?.quiz_title}</td>
+                                                                <td> {new Date(data?.attempt_date).toLocaleDateString('en-GB')}
+                                                                </td>
+                                                                <td>{new Date(data?.certificate_expiration).toLocaleDateString('en-GB')}
+                                                                </td>
+                                                                <td>{data?.total_questions}</td>
+                                                                <td>{data?.attempted}</td>
+                                                                <td>{data?.correct}</td>
+                                                                <td>{data?.wrong}</td>
+                                                                <td>{data?.score}%</td>
+                                                                <td>
+                                                                {
+                                                                    data?.certificate_eligible === true ?
+                                                                        (
+                                                                            <Link
+                                                                                href={`/certificate/${data?.quiz_id}`}
+                                                                                className="btn btn-primary rounded-pill"
+                                                                            >
+                                                                                Download
+                                                                            </Link>
+                                                                        ) : (
+                                                                            <div className="btn btn-primary rounded-pill disabled">
+                                                                                Not eligible
+                                                                            </div>
+                                                                        )
+                                                                } 
+                                                                </td>
+
+                                                            </tr>
+                                                        ))
+
+                                                    ) : "no result of quizz"
+                                                }
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -241,14 +331,7 @@ console.log('quizData', quizData)
                             </>
                         )}
 
-                        {activeTab === 'certificates' && (
-                            <div className="card">
-                                <div className="card-header bg-pink text-white">My Certificates</div>
-                                <div className="card-body">
-                                    <p>No certificates available yet.</p>
-                                </div>
-                            </div>
-                        )}
+                       
                     </div>
                 </div>
             </div>

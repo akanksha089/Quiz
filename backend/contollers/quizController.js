@@ -293,3 +293,137 @@ exports.getQuizzesByCourseSlug = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+
+// controller/quizController.js
+
+exports.submitQuizAttempt = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.user.id;
+  const {
+    quiz_id,
+    quiz_title,
+    total_questions,
+    attempted,
+    correct,
+    wrong,
+  } = req.body;
+
+  if (!quiz_title || !quiz_id || !total_questions || attempted == null || correct == null || wrong == null) {
+    return res.status(400).json({
+      success: false,
+      message: "Please provide all required fields.",
+    });
+  }
+
+  // Calculate score (percentage)
+  const score = Math.round((correct / total_questions) * 100);
+  
+  // Determine certificate eligibility
+  const certificate_awarded = score >= 75 ? 1 : 0;
+  
+  // Set certificate expiration (1 year from now) if eligible
+  const certificate_expiration = certificate_awarded ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) : null;
+
+  // Insert into quiz_attempts table
+  await db.query(`
+    INSERT INTO quiz_attempts (
+      user_id,
+      quiz_title,
+      quiz_id,
+      score,
+      attempt_date,
+      certificate_awarded,
+      certificate_expiration,
+      total_questions,
+      attempted,
+      correct,
+      wrong
+    ) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?)
+  `, [
+    userId,
+    quiz_title,
+    quiz_id,
+    score,
+    certificate_awarded,
+    certificate_expiration,
+    total_questions,
+    attempted,
+    correct,
+    wrong
+  ]);
+
+  return res.status(201).json({
+    success: true,
+    message: "Quiz attempt submitted successfully.",
+    data: {
+      quiz_id,
+      quiz_title,
+      score,
+      certificate_awarded,
+      certificate_expiration
+    }
+  });
+});
+
+
+
+exports.getUserQuizResults = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.user.id;
+
+  const [quizResults] = await db.query(`
+    SELECT
+      qa.quiz_id,
+      q.title AS quiz_title,
+      qa.attempt_date,
+      qa.certificate_expiration,
+      qa.total_questions,
+      qa.attempted,
+      qa.correct,
+      qa.wrong,
+      qa.score
+    FROM
+      quiz_attempts qa
+    JOIN
+      quizzes q ON qa.quiz_id = q.id
+    WHERE
+      qa.user_id = ?
+    ORDER BY
+      qa.attempt_date DESC
+  `, [userId]);
+
+  if (quizResults.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'No quiz attempts found for this user.',
+    });
+  }
+
+  // Calculate number of quizzes and certificates
+  const totalQuizzes = quizResults.length;
+  const certificatesEligible = quizResults.filter(q => q.score >= 75).length;
+  const totalScore = quizResults.reduce((sum, q) => sum + q.score, 0);
+  const avgScorePercent = (totalScore / totalQuizzes).toFixed(2); // in %
+
+  const quizDetails = quizResults.map(quiz => ({
+    quiz_id: quiz.quiz_id,
+    quiz_title: quiz.quiz_title,
+    attempt_date: quiz.attempt_date,
+    certificate_expiration: quiz.certificate_expiration,
+    total_questions: quiz.total_questions,
+    attempted: quiz.attempted,
+    correct: quiz.correct,
+    wrong: quiz.wrong,
+    score: quiz.score,
+    certificate_eligible: quiz.score >= 75,
+  }));
+
+  res.status(200).json({
+    success: true,
+    data: {
+      quizzes_attempted: totalQuizzes,
+      certificates_awarded: certificatesEligible,
+      average_score_percent: avgScorePercent,
+      quiz_details: quizDetails
+    }
+  });
+});
+

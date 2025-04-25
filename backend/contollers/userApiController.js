@@ -279,36 +279,81 @@ exports.getUserDetailApi = catchAsyncErrors(async (req, res, next) => {
 });
 
 // update user password
+// exports.updatePasswordApi = catchAsyncErrors(async (req, res, next) => {
+//   const userDetail = await db.query("SELECT * FROM users WHERE id = ?", [
+//     req.user.id,
+//   ]);
+//   const user = userDetail[0][0];
+
+//   const isPasswordMatched = await User.comparePasswords(
+//     req.body.oldPassword,
+//     user.password
+//   );
+
+//   if (!isPasswordMatched) {
+//     return next(new ErrorHandler("Old password is incorrect", 400));
+//   }
+
+//   if (req.body.newPassword !== req.body.confirmPassword) {
+//     return next(new ErrorHandler("password does not matched", 400));
+//   }
+
+//   // user.password = req.body.newPassword;
+
+//   // await user.save();
+
+//   const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
+//   const query = "UPDATE users SET password = ? WHERE id = ?";
+//   // Execute the update query
+//   const result = await db.query(query, [hashedPassword, user.id]);
+
+//   const token = User.generateToken(user.id);
+//   sendToken(user, token, 200, res);
+// });
+
+
 exports.updatePasswordApi = catchAsyncErrors(async (req, res, next) => {
-  const userDetail = await db.query("SELECT * FROM users WHERE id = ?", [
-    req.user.id,
-  ]);
-  const user = userDetail[0][0];
+  const userId = req.user?.id;
 
-  const isPasswordMatched = await User.comparePasswords(
-    req.body.oldPassword,
-    user.password
-  );
+  if (!userId) {
+    return next(new ErrorHandler("Unauthorized request", 401));
+  }
 
-  if (!isPasswordMatched) {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  // Check all required fields
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    return next(new ErrorHandler("All password fields are required", 400));
+  }
+
+  // Fetch user from DB
+  const [userResult] = await db.query("SELECT * FROM users WHERE id = ?", [userId]);
+  const user = userResult[0];
+
+  if (!user || !user.password) {
+    return next(new ErrorHandler("User not found or password missing", 404));
+  }
+
+  // Compare current password
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+  if (!isMatch) {
     return next(new ErrorHandler("Old password is incorrect", 400));
   }
 
-  if (req.body.newPassword !== req.body.confirmPassword) {
-    return next(new ErrorHandler("password does not matched", 400));
+  // Match new passwords
+  if (newPassword !== confirmPassword) {
+    return next(new ErrorHandler("New passwords do not match", 400));
   }
 
-  // user.password = req.body.newPassword;
+  // Hash and update password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, userId]);
 
-  // await user.save();
+  // Generate new token if needed
+  const token = User.generateToken ? User.generateToken(userId) : null;
 
-  const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
-  const query = "UPDATE users SET password = ? WHERE id = ?";
-  // Execute the update query
-  const result = await db.query(query, [hashedPassword, user.id]);
-
-  const token = User.generateToken(user.id);
-  sendToken(user, token, 200, res);
+  return sendToken(user, token, 200, res);
 });
 
 // update user profile

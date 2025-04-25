@@ -1,5 +1,5 @@
 // reducer.js
-import { FETCH_USER_REQUEST, FETCH_USER_SUCCESS, FETCH_USER_FAILURE, FETCH_ALL_QUIZ_REQUEST,FETCH_ALL_QUIZ_SUCCESS, FETCH_ALL_QUIZ_FAILURE } from '../actions/dashboardActions';
+import { FETCH_USER_REQUEST, FETCH_USER_SUCCESS, FETCH_USER_FAILURE, FETCH_ALL_QUIZ_REQUEST,FETCH_ALL_QUIZ_SUCCESS, FETCH_ALL_QUIZ_FAILURE, FETCH_USER_DATA_REQUEST, FETCH_USER_DATA_SUCCESS, FETCH_USER_DATA_FAILURE } from '../actions/dashboardActions';
 
 const initialState = {
   loading: false,
@@ -21,6 +21,24 @@ const dashboardReducer = (state = initialState, action) => {
         userData: action.payload,
       };
     case FETCH_USER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case FETCH_USER_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case FETCH_USER_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userQuizData: action.payload,
+      };
+    case FETCH_USER_DATA_FAILURE:
       return {
         ...state,
         loading: false,

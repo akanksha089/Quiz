@@ -11,5 +11,7 @@ router.post("/quizzes/update/:id",  quizController.updateRecord);
 router.get("/quizzes/delete/:id",  quizController.deleteRecord);
 router.get("/quizzes/view/:id", quizController.showDetails); // or whatever path you're using
 router.get('/api-quizzes', isApiAuthenticatedUser, quizController.getAllQuizzesApi);
+router.post('/quiz-submit', isApiAuthenticatedUser, quizController.submitQuizAttempt);
+router.get('/quiz-results', isApiAuthenticatedUser, quizController.getUserQuizResults);
 router.get('/course/:slug', quizController.getQuizzesByCourseSlug);
 module.exports = router;

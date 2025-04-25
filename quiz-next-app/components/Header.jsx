@@ -1,10 +1,21 @@
-import React,  { useState } from 'react'
+import React,  { useState ,useEffect} from 'react'
 import Login from './Login';
 import Link from 'next/link';
 
 function Header({settingData}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+    useEffect(() => {
+        // Check if the user is logged in by verifying the token in localStorage
+        const user = localStorage.getItem('user');
+        if (user) {
+          const { token } = JSON.parse(user);
+          if (token) {
+            setIsLoggedIn(true);
+          }
+        }
+      }, []);
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
     return (
@@ -42,9 +53,23 @@ function Header({settingData}) {
                     </div> */}
                     <Link href="/contact" className="nav-item nav-link">Contact Us</Link>
                 </div>
-                <a onClick={openModal}  className="btn btn-light border border-primary rounded-pill text-primary py-2 px-4 me-4">Log In</a>
-                <Login show={isModalOpen} onClose={closeModal}/>
-                <a onClick={openModal} className="btn btn-primary rounded-pill text-white py-2 px-4">Sign Up</a>
+                {!isLoggedIn && (
+                    <>
+                         <a onClick={openModal}  className="btn btn-light border border-primary rounded-pill text-primary py-2 px-4 me-4">Log In</a>
+                         <Login show={isModalOpen} onClose={closeModal}/></>
+           
+            )}
+                   {/* Show Sign Up button if user is not logged in */}
+      {!isLoggedIn && (
+                      <a onClick={openModal} className="btn btn-primary rounded-pill text-white py-2 px-4">Sign Up</a>
+
+      )}
+
+{isLoggedIn && (
+                <div className=' text-center'>
+                <Link href="/dashboard" className="nav-item nav-link">Dashboard</Link>
+            </div>
+                )}
             </div>
         </nav>
 
