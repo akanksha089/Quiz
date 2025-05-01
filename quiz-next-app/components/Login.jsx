@@ -4,6 +4,7 @@ import styles from '../styles/Modal.module.css';
 import { useDispatch } from 'react-redux';
 import { login, signUp } from '../store/actions/authActions';
 import { ImCross } from "react-icons/im";
+import Link from 'next/link';
 
 
 export default function Login({ show, onClose }) {
@@ -124,7 +125,7 @@ export default function Login({ show, onClose }) {
                       {/* <label htmlFor="password">Your Password</label> */}
                     </div>
                     <div className="m-2 text-start">
-                    <a href="/forgot-password" >Forgot Password</a>
+                    <Link href="/forgot-password" >Forgot Password</Link>
                 </div>
                     <div className="col-12">
                       <button
