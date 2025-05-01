@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -116,7 +117,7 @@ export default function ResetPassword() {
             </form>
 
             <div className="text-center mt-3">
-              <a href="/" className="text-decoration-none">Back to home</a>
+              <Link href="/" className="text-decoration-none">Back to home</Link>
             </div>
           </div>
         </div>

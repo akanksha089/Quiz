@@ -2,6 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function VerifyResetCode() {
   const [email, setEmail] = useState("");
@@ -81,7 +82,7 @@ export default function VerifyResetCode() {
               </form>
   
               <div className="text-center mt-3">
-                <a href="/forgot-password" className="text-decoration-none">Resend Code</a>
+                <Link href="/forgot-password" className="text-decoration-none">Resend Code</Link>
               </div>
             </div>
           </div>

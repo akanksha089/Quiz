@@ -2,6 +2,8 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Link from 'next/link';
+
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -68,7 +70,7 @@ export default function ForgotPasswordPage() {
               </form>
   
               <div className="text-center mt-3">
-                <a href="/" className="text-decoration-none">Back to</a>
+                <Link href="/" className="text-decoration-none">Back to Home</Link>
               </div>
             </div>
           </div>
