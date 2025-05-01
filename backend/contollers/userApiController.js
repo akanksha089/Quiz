@@ -74,48 +74,6 @@ exports.registerUserApi = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Login user
-// exports.loginUserApi = catchAsyncErrors(async (req, res, next) => {
-//   const { email, password } = req.body;
-
-//   // checking that user email and password are provided
-//   if (!email || !password) {
-//     return next(new ErrorHandler("Please enter email and password", 400));
-//   }
-
-//   // Find user by email
-//   const userData = await db.query(
-//     "SELECT * FROM users WHERE email = ? limit 1",
-//     [email]
-//   );
-//   const user = userData[0][0];
-
-//   // If user not found
-//   if (!user) {
-//     return next(new ErrorHandler("Invalid email or password 1", 400));
-//   }
-
-//   // Compare passwords
-//   const isPasswordMatched = await User.comparePasswords(
-//     password,
-//     user.password
-//   );
-
-//   if (!isPasswordMatched) {
-//     return next(new ErrorHandler("Invalid email or password ", 400));
-//   }
-
-//   const token = User.generateToken(user.id); // Adjust as per your user object structure
-
-//   /* res.status(200).json({
-//         success: true,
-//         user: user[0],
-//         token
-//     });*/
-//     // sendTokenUser(user, token, 201, res);
-//     sendTokenUser(user, token, res);
-
-// });
-
 exports.loginUserApi = catchAsyncErrors(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -170,107 +128,209 @@ exports.logoutApi = catchAsyncErrors(async (req, res, next) => {
 });
 
 //forgot password for sending token in mail
-exports.forgotPasswordApi = catchAsyncErrors(async (req, res, next) => {
-  //const user = await User.findOne({email: req.body.email})
-  const userData = await db.query(
-    "SELECT * FROM users WHERE email = ? limit 1",
-    [req.body.email]
-  );
-  const user = userData[0][0];
+// exports.forgotPasswordApi = catchAsyncErrors(async (req, res, next) => {
+//   //const user = await User.findOne({email: req.body.email})
+//   const userData = await db.query(
+//     "SELECT * FROM users WHERE email = ? limit 1",
+//     [req.body.email]
+//   );
+//   const user = userData[0][0];
 
-  if (!user) {
-    return next(new ErrorHandler("User not found", 404));
-  }
+//   if (!user) {
+//     return next(new ErrorHandler("User not found", 404));
+//   }
 
-  //get ResetPasswordToken token
-  const resetTokenValues = User.getResetPasswordToken();
+//   //get ResetPasswordToken token
+//   const resetTokenValues = User.getResetPasswordToken();
 
-  const resetToken = resetTokenValues.resetToken;
-  const resetPasswordToken = resetTokenValues.resetPasswordToken;
-  const resetPasswordExpire = resetTokenValues.resetPasswordExpire;
+//   const resetToken = resetTokenValues.resetToken;
+//   const resetPasswordToken = resetTokenValues.resetPasswordToken;
+//   const resetPasswordExpire = resetTokenValues.resetPasswordExpire;
 
-  /*await user.save({validateBeforeSave: false});*/
+//   /*await user.save({validateBeforeSave: false});*/
 
-  const resetPasswordUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/password/reset/${resetToken}`;
+//   const resetPasswordUrl = `${req.protocol}://${req.get(
+//     "host"
+//   )}/api/v1/password/reset/${resetToken}`;
 
-  const message = `password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested reset password then please ingone it`;
+//   const message = `password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested reset password then please ingone it`;
+
+//   try {
+//     const query =
+//       "UPDATE users SET reset_password_token = ?, reset_password_expire = ? WHERE email = ?";
+//     // Execute the update query
+//     const result = await db.query(query, [
+//       resetPasswordToken,
+//       resetPasswordExpire,
+//       req.body.email,
+//     ]);
+
+//     await sendEmail({
+//       email: user.email,
+//       subject: "Password Recovery",
+//       message,
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: `Email sent successfully to ${user.email}`,
+//     });
+//   } catch (error) {
+//     await db.query(
+//       `UPDATE users SET reset_password_token = '', reset_password_expire = '' WHERE email = ${req.body.email}`
+//     );
+
+//     return next(new ErrorHandler(error.message, 500));
+//   }
+// });
+
+exports.forgotPasswordApi = async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email is required" });
 
   try {
-    const query =
-      "UPDATE users SET reset_password_token = ?, reset_password_expire = ? WHERE email = ?";
-    // Execute the update query
-    const result = await db.query(query, [
-      resetPasswordToken,
-      resetPasswordExpire,
-      req.body.email,
-    ]);
+    const [userData] = await db.query("SELECT * FROM users WHERE email = ? LIMIT 1", [email]);
+    const user = userData[0];
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate 6-digit alphanumeric code
+    const code = crypto.randomBytes(3).toString("hex").toUpperCase();
+    const expiry = new Date(Date.now() + 5 * 60 * 1000); // valid for 5 mins
+
+    // Update code & expiry in DB
+    await db.query(
+      "UPDATE users SET reset_code = ?, reset_code_expiry = ? WHERE email = ?",
+      [code, expiry, email]
+    );
+
+    const message = `Your password reset code is: ${code}\nIt is valid for 5 minutes.`;
 
     await sendEmail({
-      email: user.email,
-      subject: "Password Recovery",
+      email,
+      subject: "Password Reset Code",
       message,
     });
 
-    res.status(200).json({
-      success: true,
-      message: `Email sent successfully to ${user.email}`,
-    });
-  } catch (error) {
-    await db.query(
-      `UPDATE users SET reset_password_token = '', reset_password_expire = '' WHERE email = ${req.body.email}`
+    res.status(200).json({ success: true, message: `Reset code sent to ${email}` });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.verifyResetCode = async (req, res, next) => {
+  const { email, code } = req.body;
+
+  if (!email || !code) return res.status(400).json({ message: "Email and code are required" });
+
+  try {
+    const [userData] = await db.query(
+      "SELECT reset_code, reset_code_expiry FROM users WHERE email = ? LIMIT 1",
+      [email]
     );
 
-    return next(new ErrorHandler(error.message, 500));
+    const user = userData[0];
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.reset_code !== code)
+      return res.status(400).json({ message: "Incorrect code" });
+
+    if (new Date() > new Date(user.reset_code_expiry))
+      return res.status(400).json({ message: "Code has expired" });
+
+    // ✅ Mark code as verified
+    await db.query(
+      "UPDATE users SET reset_code_verified = TRUE WHERE email = ?",
+      [email]
+    );
+
+    res.status(200).json({ success: true, message: "Code verified" });
+  } catch (err) {
+    next(err);
   }
-});
+};
+
+
+exports.resetPasswordApi = async (req, res, next) => {
+  const { email, newPassword } = req.body;
+
+  if (!email) return res.status(400).json({ message: "Email is required" });
+  if (!newPassword) return res.status(400).json({ message: "New password is required" });
+
+  try {
+    const [userData] = await db.query(
+      "SELECT reset_code_verified FROM users WHERE email = ? LIMIT 1",
+      [email]
+    );
+
+    const user = userData[0];
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.reset_code_verified)
+      return res.status(400).json({ message: "Reset code not verified" });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await db.query(
+      `UPDATE users 
+       SET password = ?, reset_code = NULL, reset_code_expiry = NULL, reset_code_verified = FALSE 
+       WHERE email = ?`,
+      [hashedPassword, email]
+    );
+
+    res.status(200).json({ success: true, message: "Password has been reset" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 // reset user password
-exports.resetPasswordApi = catchAsyncErrors(async (req, res, next) => {
-  //creating token hash
-  const resetPasswordToken = crypto
-    .createHash("sha256")
-    .update(req.params.token)
-    .digest("hex");
+// exports.resetPasswordApi = catchAsyncErrors(async (req, res, next) => {
+//   //creating token hash
+//   const resetPasswordToken = crypto
+//     .createHash("sha256")
+//     .update(req.params.token)
+//     .digest("hex");
 
-  const currentTime = Date.now();
+//   const currentTime = Date.now();
 
-  const query = `
-        SELECT *
-        FROM users
-        WHERE reset_password_token = ? 
-        AND reset_password_expire > ?
-    `;
+//   const query = `
+//         SELECT *
+//         FROM users
+//         WHERE reset_password_token = ? 
+//         AND reset_password_expire > ?
+//     `;
 
-  // Execute the query
-  const userDetail = await db.query(query, [resetPasswordToken, currentTime]);
-  const user = userDetail[0][0];
+//   // Execute the query
+//   const userDetail = await db.query(query, [resetPasswordToken, currentTime]);
+//   const user = userDetail[0][0];
 
-  if (!user) {
-    return next(
-      new ErrorHandler(
-        "Reset password token is invalid or has been expired",
-        404
-      )
-    );
-  }
+//   if (!user) {
+//     return next(
+//       new ErrorHandler(
+//         "Reset password token is invalid or has been expired",
+//         404
+//       )
+//     );
+//   }
 
-  if (req.body.password !== req.body.confirmPassword) {
-    return next(new ErrorHandler("Password does not matched", 404));
-  }
+//   if (req.body.password !== req.body.confirmPassword) {
+//     return next(new ErrorHandler("Password does not matched", 404));
+//   }
 
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+//   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-  const query_2 =
-    "UPDATE users SET password = ?, reset_password_token = ?,reset_password_expire = ?  WHERE id = ?";
-  // Execute the update query
-  const result = await db.query(query_2, [hashedPassword, "", "", user.id]);
+//   const query_2 =
+//     "UPDATE users SET password = ?, reset_password_token = ?,reset_password_expire = ?  WHERE id = ?";
+//   // Execute the update query
+//   const result = await db.query(query_2, [hashedPassword, "", "", user.id]);
 
-  const token = User.generateToken(user.id); // Adjust as per your user object structure
+//   const token = User.generateToken(user.id); // Adjust as per your user object structure
 
-  sendToken(user, token, 201, res);
-});
+//   sendToken(user, token, 201, res);
+// });
 
 // get user detail
 exports.getUserDetailApi = catchAsyncErrors(async (req, res, next) => {
@@ -286,39 +346,6 @@ exports.getUserDetailApi = catchAsyncErrors(async (req, res, next) => {
 });
 
 // update user password
-// exports.updatePasswordApi = catchAsyncErrors(async (req, res, next) => {
-//   const userDetail = await db.query("SELECT * FROM users WHERE id = ?", [
-//     req.user.id,
-//   ]);
-//   const user = userDetail[0][0];
-
-//   const isPasswordMatched = await User.comparePasswords(
-//     req.body.oldPassword,
-//     user.password
-//   );
-
-//   if (!isPasswordMatched) {
-//     return next(new ErrorHandler("Old password is incorrect", 400));
-//   }
-
-//   if (req.body.newPassword !== req.body.confirmPassword) {
-//     return next(new ErrorHandler("password does not matched", 400));
-//   }
-
-//   // user.password = req.body.newPassword;
-
-//   // await user.save();
-
-//   const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
-//   const query = "UPDATE users SET password = ? WHERE id = ?";
-//   // Execute the update query
-//   const result = await db.query(query, [hashedPassword, user.id]);
-
-//   const token = User.generateToken(user.id);
-//   sendToken(user, token, 200, res);
-// });
-
-
 exports.updatePasswordApi = catchAsyncErrors(async (req, res, next) => {
   const userId = req.user?.id;
 

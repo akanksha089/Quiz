@@ -26,6 +26,8 @@ export default function Login({ show, onClose }) {
       // Dispatch login action and wait for it to complete
       await dispatch(login({ email, password }));
       onClose(); // Close the modal only after successful login
+       // Reload the page after successful login
+    window.location.reload();
     } catch (error) {
       try {
         const parsed = JSON.parse(error.message); // Try to parse the error message
@@ -68,6 +70,9 @@ export default function Login({ show, onClose }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
+      <div  className="cross-button " onClick={onClose} >
+                <ImCross size={28} color="pink" />
+                </div>
         <div className={styles.flexin}>
           <div className="tabs tabs-style-flip">
             <nav>
@@ -82,9 +87,9 @@ export default function Login({ show, onClose }) {
                     <span><i className="fa fa-user-plus"></i> Sign Up</span>
                   </a>
                 </li>
-                <div  className="cross-button" onClick={onClose} >
+                {/* <div  className="cross-button" onClick={onClose} >
                 <ImCross size={30} color="pink" />
-                </div>
+                </div> */}
               </ul>
             </nav>
             <div className="content-wrap bg-white">
@@ -93,7 +98,7 @@ export default function Login({ show, onClose }) {
                   <div className="ui segment">
                     <h2 className="">Log-In to Your Account</h2>
                     {errorMessage && <div className="alert alert-danger">{errorMessage}</div>} {/* Display error message */}
-                    <div className="form-floating my-2">
+                    <div className=" my-2">
                       <input
                         type="email"
                         className="form-control"
@@ -103,9 +108,10 @@ export default function Login({ show, onClose }) {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                       />
-                      <label htmlFor="email">Your Email</label>
+                      {/* <label htmlFor="email">Your Email</label> */}
                     </div>
-                    <div className="form-floating my-2">
+                    <div className=" my-2">
+                    {/* <div className="form-floating my-2"> */}
                       <input
                         type="password"
                         className="form-control"
@@ -115,8 +121,11 @@ export default function Login({ show, onClose }) {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                       />
-                      <label htmlFor="password">Your Password</label>
+                      {/* <label htmlFor="password">Your Password</label> */}
                     </div>
+                    <div className="m-2 text-start">
+                    <a href="/forgot-password" >Forgot Password</a>
+                </div>
                     <div className="col-12">
                       <button
                         type="submit"
@@ -125,6 +134,7 @@ export default function Login({ show, onClose }) {
                         LOGIN
                       </button>
                     </div>
+                    
                   </div>
                   <div className="ui error message"></div>
                 </form>
@@ -138,7 +148,7 @@ export default function Login({ show, onClose }) {
                     <h2 className="">Sign up for an Account</h2>
                     {errorMessage && <div className="alert alert-danger">{errorMessage}</div>} {/* Display error message */}
 
-                    <div className="form-floating my-2">
+                    <div className=" my-2">
                       <input
                         type="text"
                         className="form-control"
@@ -147,9 +157,9 @@ export default function Login({ show, onClose }) {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                       />
-                      <label htmlFor="name">Your Name</label>
+                      {/* <label htmlFor="name">Your Name</label> */}
                     </div>
-                    <div className="form-floating my-2">
+                    <div className=" my-2">
                       <input
                         type="email"
                         className="form-control"
@@ -158,9 +168,9 @@ export default function Login({ show, onClose }) {
                         value={emailSign}
                         onChange={(e) => setEmailSign(e.target.value)}
                       />
-                      <label htmlFor="emailSign">Your Email</label>
+                      {/* <label htmlFor="emailSign">Your Email</label> */}
                     </div>
-                    <div className="form-floating my-2">
+                    <div className=" my-2">
                       <input
                         type="password"
                         className="form-control"
@@ -169,9 +179,9 @@ export default function Login({ show, onClose }) {
                         value={passwordSign}
                         onChange={(e) => setPasswordSign(e.target.value)}
                       />
-                      <label htmlFor="passwordSign">Create Password</label>
+                      {/* <label htmlFor="passwordSign">Create Password</label> */}
                     </div>
-                    <div className="form-floating my-2">
+                    <div className=" my-2">
                       <input
                         type="password"
                         className="form-control"
@@ -180,7 +190,7 @@ export default function Login({ show, onClose }) {
                         value={confirmPassword}
                         onChange={(e) => setconfirmPassword(e.target.value)}
                       />
-                      <label htmlFor="passwordSign">Confirm Password</label>
+                      {/* <label htmlFor="passwordSign">Confirm Password</label> */}
                     </div>
                     <div className="col-12">
                       <button

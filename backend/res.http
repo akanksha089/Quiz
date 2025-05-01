@@ -41,6 +41,16 @@ Content-Type: application/json
   "confirmPassword": "12345678"
 }
 
+### Create a new user
+POST http://localhost:4000/api/v1/reset-password
+Content-Type: application/json
+
+{
+  "email": "jems@mailinator.com",
+  "newPassword": "123456",
+  "code":"6B2B79"
+}
+
 ### Create a quiz
 POST https://quiz-sw6o.onrender.com/api/v1/quiz-submit
 Content-Type: application/json

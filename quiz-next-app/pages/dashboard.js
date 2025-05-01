@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAPIData } from '../store/actions/homeActions';
 import { fetchUser, fetchAllQuiz, fetchUserData } from '../store/actions/dashboardActions';
+import { logout } from '../store/actions/authActions'; // adjust path as needed
+import { useRouter } from 'next/router';
 
 export default function Dashboard() {
     const dispatch = useDispatch();
@@ -28,6 +30,9 @@ export default function Dashboard() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const handleTabClick = (tab) => setActiveTab(tab)
+    const [showPopup, setShowPopup] = useState(false);
+   const router = useRouter();
+    const togglePopup = () => setShowPopup(!showPopup);
     const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -84,6 +89,10 @@ export default function Dashboard() {
             setLoading(false);
         }
     }, [settingData]);
+    const handleLogout = () => {
+        dispatch(logout());
+        router.push('/'); // redirect to home page after logout
+      };
     return (
         <div className="body-custom">
             <Head>
@@ -117,8 +126,20 @@ export default function Dashboard() {
                     <div className="col-md-9 col-lg-10 py-5 px-4 bg-light min-vh-100">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <h2 className="text-pink">Welcome, {userData?.user?.name} 👋</h2>
-                            <img src="https://thumbs.dreamstime.com/z/woman-profile-cartoon-graphic-design-vector-illustration-eps-63800342.jpg" alt="Profile" width="50" height="50" className="rounded-circle border" />
+                            <img   onClick={togglePopup} src="https://thumbs.dreamstime.com/z/woman-profile-cartoon-graphic-design-vector-illustration-eps-63800342.jpg" alt="Profile" width="50" height="50" className="rounded-circle border " style={{ cursor: 'pointer' }}/>
+                              {/* Popup Box */}
+        {showPopup && (
+          <div
+            className="position-absolute bg-white border rounded shadow-sm p-2 "
+            style={{ top: "100px", right: 0, zIndex: 999 }}
+          >
+            <button className="btn btn-primary rounded-pill" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        )}
                         </div>
+                        
                         {/* Tab Content */}
                         {activeTab === 'profile' && (
                             <div className="profile-full-section">

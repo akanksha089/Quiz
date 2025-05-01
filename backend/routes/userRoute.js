@@ -22,6 +22,7 @@ const {
   getUserDetailApi,
   updatePasswordApi,
   updateProfileApi,
+  verifyResetCode,
 } = require("../contollers/userApiController");
 const {
   isAuthenticatedUser,
@@ -60,8 +61,10 @@ router.route("/api-login").post(loginUserApi);
 
 router.route("/api-password/forgot").post(forgotPasswordApi);
 
-router.route("/api-password/reset/:token").put(resetPasswordApi);
+// router.route("/api-password/reset/:token").put(resetPasswordApi);
+router.route("/reset-password").post(resetPasswordApi);
 
+router.post("/verify-reset-code", verifyResetCode);
 router.route("/api-logout").get(logoutApi);
 
 router.route("/api-me").get(isApiAuthenticatedUser, getUserDetailApi);

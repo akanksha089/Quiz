@@ -800,7 +800,9 @@ h1 {
 .cross-button{
 margin-top: 20px;
 margin-right: 20px;
+margin-bottom: 20px;
 cursor: pointer;
+align-self: flex-end; /* Aligns to the end of the container */
 }
 
 
