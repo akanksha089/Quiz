@@ -27,6 +27,12 @@
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    connectTimeout: 10000, // 10 seconds
+    ssl: {
+      // This disables strict SSL verification, which is required for Clever Cloud
+      rejectUnauthorized: false
+    }
+
   });
   async function testConnection() {
     try {
