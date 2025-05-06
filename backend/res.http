@@ -20,6 +20,17 @@ Accept: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzQ1NDc5NDE2LCJleHAiOjE3NDU5MTE0MTZ9.hIen-c9wba8s-Qk6Yi1SyR0cvC3bRamEXRqX2M76jwY
 
 
+### Get a certificate data
+GET http://localhost:4000/api/v1/certified-quizzes
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzQ2MTA3NDE1LCJleHAiOjE3NDY1Mzk0MTV9.cfyESpF1rV1DAYQEj3SzbsqlNgXV-kN1b1M8HbJ7luo
+
+### Get a certificate data with id
+GET http://localhost:4000/api/v1/certified-quizzes/8
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNzQ2MTA3NDE1LCJleHAiOjE3NDY1Mzk0MTV9.cfyESpF1rV1DAYQEj3SzbsqlNgXV-kN1b1M8HbJ7luo
+
+
 ###
 
 ### Create a new user

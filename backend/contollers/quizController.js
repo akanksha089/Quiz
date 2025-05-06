@@ -427,3 +427,112 @@ exports.getUserQuizResults = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+exports.getCertifiedQuizResults = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.user.id;
+
+  const [certifiedResults] = await db.query(`
+    SELECT
+      qa.quiz_id,
+      q.title AS quiz_title,
+      qa.attempt_date,
+      qa.certificate_expiration,
+      qa.total_questions,
+      qa.attempted,
+      qa.correct,
+      qa.wrong,
+      qa.score
+    FROM
+      quiz_attempts qa
+    JOIN
+      quizzes q ON qa.quiz_id = q.id
+    WHERE
+      qa.user_id = ?
+      AND qa.score >= 75
+    ORDER BY
+      qa.attempt_date DESC
+  `, [userId]);
+
+  if (certifiedResults.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'No certified quiz attempts found for this user.',
+    });
+  }
+
+  const certifiedQuizDetails = certifiedResults.map(quiz => ({
+    quiz_id: quiz.quiz_id,
+    quiz_title: quiz.quiz_title,
+    attempt_date: quiz.attempt_date,
+    certificate_expiration: quiz.certificate_expiration,
+    total_questions: quiz.total_questions,
+    attempted: quiz.attempted,
+    correct: quiz.correct,
+    wrong: quiz.wrong,
+    score: quiz.score,
+    certificate_eligible: true
+  }));
+
+  res.status(200).json({
+    success: true,
+    data: {
+      certified_quizzes_count: certifiedResults.length,
+      certified_quiz_details: certifiedQuizDetails
+    }
+  });
+});
+
+exports.getCertificateByQuizId = catchAsyncErrors(async (req, res, next) => {
+  const userId = req.user.id;
+  const { quizId } = req.params;
+
+  const [results] = await db.query(`
+    SELECT
+      qa.quiz_id,
+      q.title AS quiz_title,
+      qa.attempt_date,
+      qa.certificate_expiration,
+      qa.total_questions,
+      qa.attempted,
+      qa.correct,
+      qa.wrong,
+      qa.score
+    FROM
+      quiz_attempts qa
+    JOIN
+      quizzes q ON qa.quiz_id = q.id
+    WHERE
+      qa.user_id = ?
+      AND qa.quiz_id = ?
+    ORDER BY
+      qa.attempt_date DESC
+    LIMIT 1
+  `, [userId, quizId]);
+
+  if (results.length === 0) {
+    return res.status(404).json({
+      success: false,
+      message: 'No attempt found for this quiz by the user.',
+    });
+  }
+
+  const quiz = results[0];
+
+  const isCertified = quiz.score >= 75;
+
+  res.status(200).json({
+    success: true,
+    data: {
+      quiz_id: quiz.quiz_id,
+      quiz_title: quiz.quiz_title,
+      attempt_date: quiz.attempt_date,
+      certificate_expiration: quiz.certificate_expiration,
+      total_questions: quiz.total_questions,
+      attempted: quiz.attempted,
+      correct: quiz.correct,
+      wrong: quiz.wrong,
+      score: quiz.score,
+      certificate_eligible: isCertified
+    }
+  });
+});
+

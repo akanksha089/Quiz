@@ -14,4 +14,8 @@ router.get('/api-quizzes', isApiAuthenticatedUser, quizController.getAllQuizzesA
 router.post('/quiz-submit', isApiAuthenticatedUser, quizController.submitQuizAttempt);
 router.get('/quiz-results', isApiAuthenticatedUser, quizController.getUserQuizResults);
 router.get('/course/:slug', quizController.getQuizzesByCourseSlug);
+router.get('/certified-quizzes', isApiAuthenticatedUser, quizController.getCertifiedQuizResults);
+router.get('/certified-quizzes/:quizId', isApiAuthenticatedUser, quizController.getCertificateByQuizId);
+
+
 module.exports = router;

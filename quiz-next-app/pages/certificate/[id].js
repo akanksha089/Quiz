@@ -17,6 +17,7 @@ const Certificate = () => {
     const { id } = router.query;
     const [quizResult, setQuizResult] = useState(null);
     const [loading, setLoading] = useState(true);
+    const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const [defaultMeta, setDefaultMeta] = useState({
         title: '',
         description: '',
@@ -51,14 +52,45 @@ const Certificate = () => {
         }
     };
 
-    useEffect(() => {
-        const data = localStorage.getItem('quizResult');
-        if (data) {
-            setQuizResult(JSON.parse(data));
-        }
-    }, []);
+    // useEffect(() => {
+    //     const data = localStorage.getItem('quizResult');
+    //     if (data) {
+    //         setQuizResult(JSON.parse(data));
+    //     }
+    // }, []);
 
-    if (!quizResult) return <p>Loading Certificate...</p>;
+    useEffect(() => {
+        const fetchCertificateData = async () => {
+            if (!id) return;
+
+            try {
+                const user = localStorage.getItem('user');
+                const { token } = JSON.parse(user);
+                const response = await fetch(`${API_URL}/api/v1/certified-quizzes/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch certificate data");
+                }
+
+                const result = await response.json();
+                setQuizResult(result.data);
+            } catch (error) {
+                console.error("Error fetching certificate data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCertificateData();
+    }, [id]);
+
+
+    if (loading) return <p>Loading Certificate...</p>;
+    if (!quizResult) return <p>Certificate data not found.</p>;
 
 
     return (
@@ -108,30 +140,34 @@ const Certificate = () => {
                                     <div className="certificate-content">
                                         <div className="about-certificate">
                                             <p>
-                                            has completed  on topic 
-                                            
-                                            <strong>{quizResult?.quiz_title}</strong>
+                                                has completed  on topic {""}
 
+                                                <strong>{quizResult?.quiz_title}</strong>
+
+                                            </p>
+                                            <p>
+                                                <strong>Attempt Date:</strong>{" "}
+                                                {new Date(quizResult?.attempt_date).toLocaleDateString()}
                                             </p>
                                         </div>
                                         <p className="topic-title">
-                                        The Topic consists of {quizResult?.total_questions} questions and includes the following:
+                                            The Topic consists of {quizResult?.total_questions} questions and includes the following:
 
 
                                         </p>
                                         <div className="text-center">
                                             <p className="topic-description text-muted">
-                                            {`Total Questions: ${quizResult?.total_questions}, Correct Answers: ${quizResult?.correct}, Incorrect Answers: ${quizResult?.wrong}`}
+                                                {`Total Questions: ${quizResult?.total_questions}, Correct Answers: ${quizResult?.correct}, Incorrect Answers: ${quizResult?.wrong}`}
 
                                             </p>
 
 
                                             <div className="certificate-summary text-center">
                                                 <p>
-                                                Quiz Score: {quizResult?.score}%
+                                                    Quiz Score: {quizResult?.score}%
                                                 </p>
                                                 <p>
-                                                {quizResult?.certificate_awarded === 1 ? `Certificate Awarded (Valid till ${new Date(quizResult?.certificate_expiration).toLocaleDateString()})` : "Not Eligible for Certificate"}
+                                                    {quizResult?.certificate_awarded === 1 || true ? `Certificate Awarded (Valid till ${new Date(quizResult?.certificate_expiration).toLocaleDateString()})` : "Not Eligible for Certificate"}
 
                                                 </p>
                                             </div>
